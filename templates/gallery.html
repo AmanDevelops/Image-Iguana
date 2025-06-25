@@ -56,51 +56,54 @@
     </nav>
 
     <div class="container my-4">
+        {% extends "layout.html" %}
+        {% block content %}
         <h1 class="fs-3 text-center">Image Gallery</h1>
 
         <!-- Format Conversion Gallery -->
-        <div class="gallery-section">
+        <div class="gallery-section my-4">
             <h2>Format Conversions</h2>
             <div class="d-flex flex-wrap justify-content-center">
-                <div class="card">
-                    <img src="/static/sample1.png" alt="Sample PNG">
+                <div class="card m-2">
+                    <img src="{{ url_for('static', filename='sample1.png') }}" alt="Sample PNG">
                 </div>
-                <div class="card">
-                    <img src="/static/sample2.jpg" alt="Sample JPG">
+                <div class="card m-2">
+                    <img src="{{ url_for('static', filename='sample2.jpg') }}" alt="Sample JPG">
                 </div>
-                <div class="card">
-                    <img src="/static/sample3.jpeg" alt="Sample JPEG">
+                <div class="card m-2">
+                    <img src="{{ url_for('static', filename='sample3.jpeg') }}" alt="Sample JPEG">
                 </div>
-                <div class="card">
-                    <img src="/static/sample4.webp" alt="Sample WEBP">
+                <div class="card m-2">
+                    <img src="{{ url_for('static', filename='sample4.webp') }}" alt="Sample WEBP">
                 </div>
             </div>
         </div>
 
         <!-- Image Processing Gallery -->
-        <div class="gallery-section">
+        <div class="gallery-section my-4">
             <h2>Image Processing</h2>
             <div class="d-flex flex-wrap justify-content-center">
-                <div class="card">
-                    <img src="/static/sample5_gray.png" alt="Grayscale">
+                <div class="card m-2">
+                    <img src="{{ url_for('static', filename='sample5_gray.png') }}" alt="Grayscale">
                 </div>
-                <div class="card">
-                    <img src="/static/sample6_histeq.png" alt="Histogram Equalization">
+                <div class="card m-2">
+                    <img src="{{ url_for('static', filename='sample6_histeq.png') }}" alt="Histogram Equalization">
                 </div>
-                <div class="card">
-                    <img src="/static/sample7_blur.png" alt="Blurred Image">
+                <div class="card m-2">
+                    <img src="{{ url_for('static', filename='sample7_blur.png') }}" alt="Blurred Image">
                 </div>
-                <div class="card">
-                    <img src="/static/sample8_canny.png" alt="Edge Detection">
+                <div class="card m-2">
+                    <img src="{{ url_for('static', filename='sample8_canny.png') }}" alt="Edge Detection">
                 </div>
-                <div class="card">
-                    <img src="/static/sample9_rotated.png" alt="Rotated Image">
+                <div class="card m-2">
+                    <img src="{{ url_for('static', filename='sample9_rotated.png') }}" alt="Rotated Image">
                 </div>
-                <div class="card">
-                    <img src="/static/sample10_sharpened.png" alt="Sharpened Image">
+                <div class="card m-2">
+                    <img src="{{ url_for('static', filename='sample10_sharpened.png') }}" alt="Sharpened Image">
                 </div>
             </div>
         </div>
+        {% endblock %}
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"

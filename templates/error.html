@@ -10,6 +10,8 @@
 </head>
 
 <body style="background-color: #f7f7f7; color: #333;">
+    {% extends "layout.html" %}
+    {% block content %}
     <div class="container my-5 text-center">
         <h1 style="color: #dc3545;">Error!</h1>
         <p>We encountered an issue processing your request. Possible reasons include:</p>
@@ -20,8 +22,9 @@
             <li>❌ The image could be corrupted.</li>
         </ul>
         <p>Click below to return to the home page:</p>
-        <a href="/" class="btn btn-primary">Return to Home Page</a>
+        <a href="{{ url_for('main.home') }}" class="btn btn-primary">Return to Home Page</a>
     </div>
+    {% endblock %}
 </body>
 
 </html>

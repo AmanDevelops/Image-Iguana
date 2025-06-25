@@ -17,88 +17,103 @@ def allowed_file(filename):
     ALLOWED_EXTENSIONS = {'webp', 'png', 'jpg', 'jpeg', 'gif'}
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-def processImage(filename, format_conversion=None, image_processing=None):
-    # ...existing processImage logic from routes.py...
-    img = cv2.imread(f"uploads/{filename}")
-    if img is None:
-        print(f"Failed to load image: uploads/{filename}")
-        return None
-    if format_conversion:
-        match format_conversion:
-            case "cwebp":
-                newFilename = f"static/{filename.split('.')[0]}.webp"
-                cv2.imwrite(newFilename, img)
-                return newFilename
-            case "cpng":
-                newFilename = f"static/{filename.split('.')[0]}.png"
-                cv2.imwrite(newFilename, img)
-                return newFilename
-            case "cjpg":
-                newFilename = f"static/{filename.split('.')[0]}.jpg"
-                cv2.imwrite(newFilename, img)
-                return newFilename
-            case "cjpeg":
-                newFilename = f"static/{filename.split('.')[0]}.jpeg"
-                cv2.imwrite(newFilename, img)
-                return newFilename
-    output_dir = "static/uploads"
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
+def convert_format(img, filename, format_conversion):
     base = filename.rsplit('.', 1)[0]
-    ext = filename.rsplit('.', 1)[1]
+    match format_conversion:
+        case "cwebp":
+            out = os.path.join("static", f"{base}.webp")  # FIX 1: Use os.path.join for cross-platform
+            cv2.imwrite(out, img)
+            return out
+        case "cpng":
+            out = os.path.join("static", f"{base}.png")
+            cv2.imwrite(out, img)
+            return out
+        case "cjpg":
+            out = os.path.join("static", f"{base}.jpg")
+            cv2.imwrite(out, img)
+            return out
+        case "cjpeg":
+            out = os.path.join("static", f"{base}.jpeg")
+            cv2.imwrite(out, img)
+            return out
+    return None
+
+def apply_processing(img, filename, image_processing):
+    base = filename.rsplit('.', 1)[0]
+    match image_processing:
+        case "cgray":
+            img_processed = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            out = os.path.join("static", f"{base}_gray.png")
+            cv2.imwrite(out, img_processed)
+            return out, img_processed
+        case "histeq":
+            img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            img_processed = cv2.equalizeHist(img_gray)
+            out = os.path.join("static", f"{base}_histeq.png")
+            cv2.imwrite(out, img_processed)
+            return out, img_processed
+        case "blur":
+            img_processed = cv2.GaussianBlur(img, (5, 5), 0)
+            out = os.path.join("static", f"{base}_blurred.png")
+            cv2.imwrite(out, img_processed)
+            return out, img_processed
+        case "canny":
+            img_processed = cv2.Canny(img, 100, 200)
+            out = os.path.join("static", f"{base}_edges.png")
+            cv2.imwrite(out, img_processed)
+            return out, img_processed
+        case "rotate":
+            img_processed = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
+            out = os.path.join("static", f"{base}_rotated.png")
+            cv2.imwrite(out, img_processed)
+            return out, img_processed
+        case "sharpen":
+            kernel = np.array([[0, -1, 0], [-1, 5, -1], [0, -1, 0]])
+            img_processed = cv2.filter2D(img, -1, kernel)
+            out = os.path.join("static", f"{base}_sharpened.png")
+            cv2.imwrite(out, img_processed)
+            return out, img_processed
+    return None, img
+
+def generate_output_filename(base, new_format):
+    return os.path.join("static", f"{base}_processed.{new_format}")  # FIX 2: Use os.path.join
+
+def processImage(filename, format_conversion=None, image_processing=None):
+    img_path = os.path.join("uploads", filename)  # FIX 3: Use os.path.join for uploads
+    img = cv2.imread(img_path)
+    if img is None:
+        print(f"Failed to load image: {img_path}")
+        return None
+
+    # Format conversion only
+    if format_conversion and not image_processing:
+        return convert_format(img, filename, format_conversion)
+
+    # Image processing only or both
+    base = filename.rsplit('.', 1)[0]
+    ext = filename.rsplit('.', 1)[1].lower()
+    img_processed = img
+    out_path = None
+
     if image_processing:
-        match image_processing:
-            case "cgray":
-                img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-                base += "_gray"
-                imgProcessed = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-                newFilename = f"static/{filename}"
-                cv2.imwrite(newFilename, imgProcessed)
-            case "histeq":
-                imgGray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-                imgProcessed = cv2.equalizeHist(imgGray)
-                newFilename = f"static/{filename.split('.')[0]}_histeq.png"
-                cv2.imwrite(newFilename, imgProcessed)
-                img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-                img = cv2.equalizeHist(img)
-                base += "_histeq"
-            case "blur":
-                imgProcessed = cv2.GaussianBlur(img, (5, 5), 0)
-                newFilename = f"static/{filename.split('.')[0]}_blurred.png"
-                cv2.imwrite(newFilename, imgProcessed)
-                img = cv2.GaussianBlur(img, (5, 5), 0)
-                base += "_blurred"
-            case "canny":
-                imgProcessed = cv2.Canny(img, 100, 200)
-                newFilename = f"static/{filename.split('.')[0]}_edges.png"
-                cv2.imwrite(newFilename, imgProcessed)
-                img = cv2.Canny(img, 100, 200)
-                base += "_edges"
-            case "rotate":
-                img = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
-                base += "_rotated"
-                imgProcessed = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
-                newFilename = f"static/{filename.split('.')[0]}_rotated.png"
-                cv2.imwrite(newFilename, imgProcessed)
-            case "sharpen":
-                kernel = np.array([[0, -1, 0], [-1, 5, -1], [0, -1, 0]])
-                imgProcessed = cv2.filter2D(img, -1, kernel)
-                newFilename = f"static/{filename.split('.')[0]}_sharpened.png"
-                cv2.imwrite(newFilename, imgProcessed)
-    file_format = filename.rsplit('.', 1)[1].lower()
-    new_format = file_format
+        out_path, img_processed = apply_processing(img, filename, image_processing)
+        if not out_path:
+            out_path = os.path.join("static", f"{base}_processed.{ext}")
+    else:
+        out_path = os.path.join("static", f"{base}_processed.{ext}")
+
+    # If format conversion is also requested after processing
     if format_conversion:
-        if format_conversion == "cwebp":
-            new_format= "webp"
-        elif format_conversion == "cpng":
-            new_format = "png"
-        elif format_conversion == "cjpg":
-            new_format = "jpg"
-        elif format_conversion == "cjpeg":
-            new_format = "jpeg"
-    newFilename = f"static/{base}_processed.{new_format}"
-    cv2.imwrite(newFilename, img)
-    return newFilename
+        temp_path = os.path.join("static", f"{base}_temp.{ext}")
+        cv2.imwrite(temp_path, img_processed)
+        img2 = cv2.imread(temp_path)
+        out_path = convert_format(img2, f"{base}_processed.{ext}", format_conversion)
+        if os.path.exists(temp_path):  # FIX 4: Check before removing
+            os.remove(temp_path)
+        return out_path
+
+    cv2.imwrite(out_path, img_processed)
+    return out_path
 
 @image_processing.route('/edit', methods=['GET', 'POST'])
 @login_required
@@ -143,7 +158,7 @@ def edit():
                 else:
                     error_files.append(f"{file.filename} (invalid type)")
             except Exception as e:
-                error_files.append(f"{file.filename} (error: {str(e)}")
+                error_files.append(f"{file.filename} (error: {str(e)})")  # FIX 5: Add missing closing parenthesis
         if error_files:
             flash(f"Errors with {len(error_files)} file(s): {', '.join(error_files[:3])}{'...' if len(error_files) > 3 else ''}")
         if not processed_files:
