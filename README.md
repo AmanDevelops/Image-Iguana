@@ -35,8 +35,20 @@ Follow these steps to get started with **Image Iguana**:
    ```bash
    pip install -r requirements.txt
    ```
+4. ⚙️ Set up environment variables:
 
-4. 🔄 Launch the application:
+```bash
+cp .env.example .env
+```
+
+Then, open the .env file in your editor and replace the DATABASE_URL with your external Render PostgreSQL database URL:
+```bash
+DATABASE_URL=postgresql://<username>:<password>@<host>/<database_name>
+```
+
+You can find this in your Render dashboard under Databases → Connection Info → External Database URL.
+
+5. 🔄 Launch the application:
 
    ```bash
    python main.py

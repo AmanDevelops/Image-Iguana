@@ -4,6 +4,8 @@ from flask_login import LoginManager
 from flask_wtf.csrf import CSRFProtect
 from config import Config, DevelopmentConfig, TestingConfig, ProductionConfig
 import os
+from dotenv import load_dotenv
+load_dotenv()
 
 db = SQLAlchemy()
 login_manager = LoginManager()
